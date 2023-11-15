@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<style>
+    canvas#myCanvas {
+  background-color: tan;
+  border: 2px solid black;
+}
+
+</style>
+<body>
+    <canvas id="myCanvas" width="400" height="400">Your browser does not support JS Canvas</canvas>
+<button onclick="playGame()">Play Game</button>
+</body>
+<script>
+    // cache the canvas
+const canvas = document.getElementById("myCanvas");
+// initalize the context
+let ctx = canvas.getContext("2d");
+const CW = canvas.width;
+const CH = canvas.height;
+const halfCW = CW / 2;
+const halfCH = CH / 2;
+
+let ballIconSrc =
+  "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wCEAAoHCBYVFRgWFhUYGBgaGhwcGBwaGhgaHhgdIRoeGhwaGhwcIS4lHB4rIRocJjgmKy8xNTU1GiQ7QDs0QC40NTEBDAwMBgYGEAYGEDEdFh0xMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMf/AABEIAOUA3QMBIgACEQEDEQH/xAAcAAEBAAIDAQEAAAAAAAAAAAAAAQUHAgQGCAP/xABHEAABAgQDBQcDAgMEBgsBAAABAAIDERIhBDFBBSIyYYEGQlFxkaHwBxPRYsEUsfEjUnKSFheCotLhFSQzQ0RUc5OywtNT/8QAFAEBAAAAAAAAAAAAAAAAAAAAAP/EABQRAQAAAAAAAAAAAAAAAAAAAAD/2gAMAwEAAhEDEQA/ANvOdVYed0BkKdcuV0IA4c+V7IAJTOfyVkBu7nr4KBsjVpnzuq2/F0nZQEzkeH9tLoDm1XHldVzqrD3UcSOHLle6rgBw58roAdISOf5Ropz18EABEzn8lZG34uk7IJTerTPmhFVx7pMzl3f281XGXD7XQHOqsM0DpCRzRwAu3P1Rsjnxeh9EEaKc9fBKb1aZ810dk7TbiA8jhZEdDB0c5tnS6rvTM5d39vNAcKsvdVzp7ozXX2ji2wIbohMmMFTyLyC7DgBcZ+vnZAa6mxzUaKbn2VaAbuz9PZGGfF72QSm9WmfNV29lp4qTM5d39vNV1uHrK6AXTEhn+Ea6mx9kIAExn8nZGgHiz52QRrabnyslMzVpnzsjSTxZc7JMzkOH9tboK7ey08UJmKdfwjrcPWV0IEpjP5OyA11Nj52U+weSoAPFnztZSp3P0QWmm+ei/OPEa1piOcGtaKnE5ADOZ6Lm0EcWXO91qD637de10PCMcWsc2t4FqryaDymCg7XaL6xQ2mnDQfuSnNzzSP8AZAuV5X/W/j55QqfCj95rXhCyWD2BioonDw0d4ORbDeQeoEkHt4H1jxrTdkFw8KSPea7rPrVGBn/CQ/8AO/8AC8W/sPtANqODjS/w3/yi/svzh9jdoOywWI6w3j+YQe9b9a3zm7BMOWUVw/mwrLw/rRhnSD8PGZ4lpY6XuFqiL2Rx7c8HiOkJ5/kF1/8ARzF/+VxH/tP/AAg3Z/rhwEpUxpeNA/lNcD9YsC0GlkZ3+yB+601D7L41xkMJiJ84Tx/MLO4L6ZbQiSJghgOr3Bp/ym6Cba7f4nE4hsWt8KGx02shvc2053IlUbarZPZvFYzGtxO0AygvhfZwjZkCYLgXmZ4aiCTrTbJeR7H/AErfHDI2IiNbCrcCxs3PdS8sIJFmzLT4rd2EwjITGshNDIbAA1rbADyQY/srsb+GwzIFVTmzc93957iXOPqVl6u70mjr8PWVktKXe95+aDH7fwP3cNGggyMSG9oPgS0yMvNdKK92KwBex5ZEiwCWFpLSyIWzsWme68eyzrbcXSd1rvHbWh4DGiE8xJOjCJCa0FwcIwMN7KR/dcGvAGd9UHgtmfVbHwnARqIobZwc0McZeLmjMeS9lgPrJhnt/t4MSG6fclEB/ksV9Tfp68vdi8Ewva8ziw2AuIcTd7ALkE5gZeWWqMXhHwnlkRjmPGbXAtcNbg3FkH05sjtngsQwFmIYNCHuDHN82lZqHHaBuua4G4II/ZfIK7ELHRGypiPbLKTnCXoUH13TLe9vNKar5L5iwHbzaEESbiXkSyfJ4/3l2HfUnaR/8SR5NaP5BB9K1VWy18Uqlu9J+a+am/UjaI/8Qf8AKFzH1M2j/wD3/wB0IPpLh5z6JKW91l5/1Xzf/rN2if8Avh1aFsP6S9qsRjXxxiIoeGNaWtlKUyQTLXRBs2mq+Wiff5e6jgTw5crXXOpvL0QcGuqsfOy8N2/7C/8ASEWAWuayibYjjMuLTIgAZTF/Ve6c6qw80BkKdfyg85sPsXg8EGmHBa58pF7wHOMtb2B8lktp7T+zKmBHjOInKEwODZ+JcQB6rIt3c9fBa/8AqHtvaWCb9+B9h0AmRNDi+GTlXN1JaTaYGch5hm3dpopv/wBGY7o2B/8Aqo3tVEdMO2bjgMxJkIkny+5ZaRi/UrabiT/FET0DIYA5AUr9WfUnapMv4gu5fbhmfoxBuiH2seZtbs7HTGjocNmf6i+lZnZuOe9pc6BEgGcqYphknmPtvdLrJacwXbbbrwCyC54OX/V5z9AF3oXaHtE80tw1JNpmC1vu8yHVBtraTorYT3wGtfFAmxr3FrXHwJGVprwkbtptCAS7F7MeIYnN8B33AOZlUAPOSxhwfaZ0j91jdbHD+8mlew7JM2nJwx7oDgBuOh2cTrVSA2UvABBhoG2KWDaGEqfhIjp4qBIVQ3ZOjMHdItU0WM6vFe8g4hrmtLSHNcAQfEFa+2CRD21jMLBDRh3sbEewEUtiUsqIAG6TMzHNbBwsFkJjYbGhrWiTWtFgNAEH6EU5a+KU2q1zRgpzSm9WmaD8o0VoY57yGtY0ucdA0CZJ8gF4nZmGfjHv2j9qTywswLXymxtw2M+fCTOfITlmF7p7asssjNUmYpGf4QeM7H9msVs9zw/F/wARCeHOoopIiE1FzZuIE76gTK6fbGBFx0F+Hh4B7XPLQY2IbCDYbQQS5rmuLp2HSa9+11NjmsFtftJgYAezEYmDaz4dQe/xkWNm7pJBpqL9PsMx9L9rYZtryaSQdRKqXWfRen2V9Kdnx2Th46JEcOIsMOXRsiR6lZxn1D2OdysBk+EwHU+lK5Mh7DxhDmfw7HaFpOGfPQgtLSUGAx/0WYZCBintdr9xgcD5FsqfdeZ2z9JcdBALKI/iGGkjws+U+k1teJsfGwgTgsbWyQphYppitt/djtNYHnVmuOH7WR4JEPF7PxDHf34Df4iGfKneHlIoNC4nshjofHg448obnf8AxBWKj4R7DJ7HtPg5rmn0IX1hs7HtiNqDYjQbSiQ4kN3o9oX7x8O193sa9vg4B3nYhB8gBZHY214uFitiwXFrmnoRqHDUL6dxHZvBxbHCYcy8YTPbdXVPYvZxsMFAn/gHVBktj7SbGgQ4rCHNewOmPEi46Fd/7A8Surs3AwsMwQobGsYCSGtEgJmZ912PsnkgpAHDn6oACJnP5KyBtN89ElPe6y8v6IDb8XTRfhisM2Kx0KIwOhuBa4EWIX7ne5SSqe70n5IMDg+x+BgOqhYWGD401S/zTWZ/hYbbtYyfJoX6h1Ns9UppvmgNAlfP08rLqs2hCLi0xWVAypraCDkRKefJdqme98suLWiQa0BoGQGXkAEHX2hjDCaXfbiRAO7DaHOI5TI/mvJ4luJx1Qjtfg8E2Ze2sCNHAvJ5bP7bJAzAMyNV7aru9JrzP1GxDoWzcUWkg0AAjSp7WH2JQaC2vtWHDxTomzw/Dw2mllMR5Lg21RJM96U5T1W3vo9tyNi4WIdiIjojmPaGlxyBaT/MLQQbPJbw+huFc2FiagWuD2AgjwDj+6DaTTPi6aKTM5d39vNXi5SSru9JoI4y4fyq4ACYz+aJw85pTTvfLoDQDd2fosVtTs/hsUCMRAY8mW8WhrrZSeJO91laat7JCarZINabW+j2Ee6cB8SDy/7Rv+9ceq8dtD6PY5kzDfBijQB5a4/5mgT6rflXd6TTh5zQfMOJ2LtPBWLMTCANixz6Z+ILCQv0wXb3aMAyGJiOlpE/tPWuZX01TLe9vNdfGYCHHEokOG9uRD2NeD0cEGoti/WV82txcBrm6vhEhwOhoNj6rZHZvtXhsc0/YfOXE11ntB1I8M7r8D2G2c7LBwh5N/C/fBdkcDBeHQ8NDY8ZObMIM663D11QgATGfydkG7zmlMt7rLzQAAeLP0Urdz9FS2q+WifxHJBGz72XPxQznbh9uaNdVY+dkJlu9PX+qCu/T1klpW4veeqO3crz8Uplva5+qA2Xez5+CNn3suaBtVzbRA6qxQQznbh9uarv09ZKF0t35dUinK8/FAtL9XvNeQ+qLJ7LxAOe56CI0/svX097XNYTtfsh+NwcWAwtDn0hpcSGiT2kkyBNgDZB82dmtmvxGJhQmZueJmU6ROZJ6BfQXZF5ditpECQ/iWNllZsJrQZcwJ9VhOyX05iYHEQ4sPFAtplHaYQm4Z0scZyE5Xsbc5Lu9gIMSDitowogcCYrHtLgd5rw8BzScxu+yD3T/wBPWSWl+r3mhFOV5+KU2q1zQGfq6TQTnfL5JAKs7S8FA6rdQV0+7lyR36fZQup3VXCm4v5oFpfq95o39XSaU97XNAKs7S8EEAM78PySrp93LkoHT3fllXOpsEB0u7nyQSlfi956I5tNx5IGz3tc/RAb+rpNQTnfh9uSrd7O0vBSqZp0y9EB0+7ly8VzmzkuDnU2HmuX2B4lBHOqsM0DpCRz/KPAbcZ+qAAiZz+SsgN3eLVSUjVpmq3e4umigN5d35qgrhVcI51Vhmo408P5VcALtz9UAOkKTmjd3iQAETOfyVkYauL8IFN6tM1HCrhSd5d35qsb2l2u3BYaJHPCxswM5uJpa3qSEGH7bduoGADWEGJGdIthgykJyqee6PDUr1EF4LQSJEtGeYneRK+TNp7RiYiK+PEcXPe6px56AeAGQGgAX1N2ex7cRhoMcf8AeMa7yMrjoQR0QZBgp4klerRGGri/Cx229tQcHCdFjuphtt4lx0a0d5xQZBwq4VXOmJDNeV/03g/wLcdDhxXQi+l7aRUzepc5wBIkOR1C9Lh47HsbEhuDmvAc1wMw4G8wg/VrqbHNRgp4lWgG5zUYauL8ILK9WmaO3uHRSd5d35qq7d4euqAXTFIzRrqbHNCABMZ/Jo0A3dn6II0U3crTerTNRhq4vwk7y7vzVBX73DpmhdMSGf4R27w9dUIAExn8nZAa6mxzU+074VWgG5z9FPuO+BBQ2m+eiET3uvp/RRs+9lz8UM524fbmgp3uUkqnu9PRHfp6yS0rcXvPVADqbZ6oG03zRsu9nz8EbPvZc0AtnvfLJxcpKGc7cPtzVd+nrJAq7vRa8+tsWjZwbffjsFvANe6/VoWw7S/V7zWF7V7BbjsK/DvdQXUlrpVUuaQQZajMZ5EoPlVbU+lPbdmHH8JiXhkKZdDe6waTctcdGnMHxPNem7LfSWBh3iJinDEETpYW0wx4FzSSXHkbXyK7v1gwMN2znvobVDMP7bpAFs3tYQCNKSRLL2QZTbP1A2fBh1nEMiHINhObEc4ynKQMmjm4gLRfbbtZE2jGrdNkNtoUOcw0ak+LjqfIaLE7G2RGxUZsCC2p7zbwA1c46NGpW2cd9GWGHDELEFsUD+1LxNrjK9DWyIE8gSbaoNRwdqR2Q3QmxojYT+Jge4Md5tnIren0X2qYmBLHGZgPLR/gdvN96h0XlcT9FozWOLMUx7wN1hYWh3KouMvRe6+mfZR2z8O4RpfciOqfIzDQLNbPXMmfNB7Itq3kJqtkjp93Lkjv0+yBV3eicPOaWl+r3mjf1dJoJTLe+XVLar5KCc78PySrp93LkgF1VstUqlu9PVHS7ufJBKV+L3nogDd5zUplvdfVVv6uk1BOd+H25IKW1Xy0V+/yXF0+7ly8Vz3OSDgHVWy1QmW709f6quM7DP0QOAFJz+SugHd5zSmW919Ubu8XTVQAzq0+aIKG1Xy0QOqtko4VXb+FXOnZufoghdLd+XV4ec0DpCRzRu7xflAp73VAKr5SUAM6tPmiOFXD+EAOq3V1dqYCHHhugRWhzHiTgbazBEsiDea7bjOwzVaZCRzQYPYHZXC4Co4aFS59nOcXOcQLym42HJZunvdUYKeL8qSM6tPmiC8XKSgdVuo8VcP4VcZiQzQC6ndQim+aNdKxzUYKeL8oLT3usk4uUlJXq7vzRV29w9dEEnPd+WVLqbZoTMSGfyaNcG2OfqgFtN89ElPe6+ijBTxflJGdWnzRBRvcpKVT3enoq/e4dM9EJmKRn8ndBC6m2eq5fY5qNdKzs/VT7bvhQV4lcZ+qBsxM5/hQNpv0Qie919P6IK3e4tOiB16dEO9laSTnu9PRBHGmzfyq4U3GaB1NjfVA2m6ABMTOaMNXF+FC2e98sqTVlaSD8himV/bqbUBOmYqp0MvBYvG9oYbH/Zg/20Y9xhnTziOEwwczfkV89dqtq4iNj47g59f3HQ2hhcDS1xa1oDbnJbg+nmDdhsMz/qsX7kQVRHPpY4uOYk+TpIMhtLszi8TNz8dEgE5NgVMa0eEw6bzfiP8AyXn4n02xmbdq4k+b4gP/AM17mNHxebYbG/4nT/kVyYzGET+5AHiPtvMutd0HiML9PceDfa2Jb/tvd7F69Js7YGOhNpO0nxB+uExx9Tf3WVDcU7J8HrDf/wAa67omODpf2DvIOH83IOMTZ2O7mNY3zw7D/wDZeP2ritt4OIIrnMxEBpFbWQ2BxbPeMgJgy5r2j8biWCb4LX8mEe0ysNG+oWGhvoxLHwP8YqB9Ag9PszGsxEJkZjgWuExI5cjzBsuww1cX4Wodt9sIeBjtj4J7I2HjAmJCqkGvmN5lpgm5Oi2J2U28cfhxGMJ0KZIpdqBq06goM1VenRV5p4fylXd6IDTneaARITGaNaHXOagbLe+XVLaroI01Wd+EqvToqXVWHmgMt3p6oD93h1z1QiQqGf5zQbud5qUy3uvqgrWzu7P0U+674ELar9Fy++PAoOLZ97Ln4oZztw+3NUOqtlqpOW70n5/1QV36esktK3F7z1Q7vOaUy3usvNAbLvZ80bPvZc0Dar5aIHVWyQQznbh+TVd+nrJC6W77+acPOaDr4fAwoZc5kNjHuu4tY1rnHxJAubldhv6s+aU97rJAKr5IDZ97LmoZ93h+TVqq3ckqp3fl0B36esktL9XvNOHnNKe91kgN/V0mutiNnw4n/aw2PH62tP8AMLs8XKSVVbvyyDGf6P4YGbcNCl/6bPwskGBoAYAJWkNB5K1U7uaEU3zQLS/V7zRv6uk0p73WScXKSCCc78PySrp93Lkk57vv5IXU2zQHS7ufJBKV+L3nohbTfPRKZ73WXkgN/V0moJzvw+3JUb3KSlU93pPyQV0+7lyXKTOS4l1Ns9Vfsc0EcQbNz9EBAEjn8ldHNpuPJAJirX8IDbcXTVQAzn3fkrKs3s9FA6Zp0yQCJ8OXoq4g2bn6I51Ngjm03GaACAJHP5K6N3eLpqgbMTOf4Rhqz0QSRnPu/t5I4T4fwrVenTJHGmwQcI0dotUGnnb3X5/x0MCTnsn5g+6x3a+ATgo9DS5/23UBt3VStSPGa+dns2mc4eK/9t//AAoPphmOhjiiM/zArkMWyc62U/4h/Ka+Y3QNozkYeJn/AOm//hXawOydqRnBrIWImf7zXMHq4AIPo+PtCEBP7sMAZ7zR+66OB7TYWPE+xBitiRACSGzsBnN2S1Ts36Y4+LI4iP8AabO7aqnS6WBW1uzvZrD4CHTAbc8b3Xc8+LigzDSBY5+qjRLi/KrW1CZzRhqzQSRnPu/NFTfh66JVenTJHmnLVAJBEhn8ndGkCzs/VC2QmM/yjW1XOaCNEuLL1SRnPu/NFWuqsVKpGnTJBTfh66ISCJDP5O6P3ctUIkKtfygAgcWfqp9t3wqtbVcqfeKA1tNz5WQiZq0z9P6I2Z4sudroZztw+0tboK7ey08UqmKdcvRHW4esrpISmOL3nrZAa6mx87I1tNyjZHiz52so2fey52QC2e98sqTVlp4qGc7cPyarrcPWV0Cq1OuSNNNj7JISn3vefkjL8WfOyCBtO8ULat5Vs+9lzUM524fk0FJqy08UqtTrkjrcPWV0tKfe95+SADTnr4KBtO8q2/F0nZS878PySAW1bwVcarD3R0+7lyR1uH2ugVWp1yRu7nr4JISn3vefkjb8XSdkEDZGr5dVzarhQTnfh+SR0+7lyugrnVWHndA6Qp1y9UdIcOfK6CUpni956WQG7uevgoGyNWmfqq2/F0nZQTnfh9uV0BzarjyuuX3x4FcXTHDlyvdc6W8vVBxqqtlqk5bvSfn/AFQkHhz9LICJSOfyV0Dh5zSmW91l5o23F0ndQAzmeH9tLILTVfLRKqrZKOBPDlysq4g2bn6IE5bvv5pKnnNAQBI5/JXRtuLpO6BT3usklVfKVlJGc+7+3khvw5crILVVu5JVTu5/80cQbNz9EBAEjn6+V0CVPOaU97rJYztBiXwsLHeOJsNxbO95WX7bGgOZAhNe4uphsDnEzLjSJk9UHdlVyklU7Zc/JHX4euiOINhn6ed0CqndzSVN80aQLOz9VG24vygtPe6ySVXKSkjOfd/byVdfh6ysgTnu+/klVNs0JBEhn8ndAQOLP1QKab56JTPe6y8kaCOLL1UkZzHD+2tkF4uUknPd6T8v6I6/D1lZCRKQz+TugVU2z1T7HP2QEDiz9VKXc/VBXCm48roGzFWufoo1tNz5WQtmatM+dv6IK3ez08FA6Zp0y9FXb2Wnik5inXLlZBHOpsPO6rm03CNNNj52Rrabn2QAJirX8I01Z6eChbM1afhVxqy08UCq9OmShNNh7q1Wp1y5Iw02PsgObTcZoGzEzmoG0mo+yFtRqGSBKuzgJfPFUOvTpkjjVlp4pVanXLkgjjTlr4qubSKhmjTTnr4KBtJqOSCtbUJnNRpqsfZVzarhHGqw90Cq9OmSONOWvilVqdcuSN3c9fBAIkKtfyjW1XKgbI1aflVzarj3QRrqrHzslUjTpl6qudVYed0BkKdcuV0B27lr4oRIVa/lG7uevgoGyNWnvdBWtqufKyn3zyRzarjyuuf3xzQcWGZkbqOMjSMlUQH2ysqRaeviiIJDE87qNMzI3CqII8yMhkq8SysiILK09VIYnndEQRhmZHJV5kZDJEQIgllZWVp6+KIgjBPO6jDMyOSqIDzIyGSRBLKyIgoFp6+KjL53REEaZmRyVcZGQsiILEEskAtPXxREEZfO6jTM0nJVECIZZWX6fab4IiD/2Q==";
+let ballImage = new Image();
+ballImage.crossOrigin = "anonymous";
+ballImage.src = ballIconSrc;
+
+let netIconSrc =
+  "https://png.pngtree.com/png-vector/20220719/ourmid/pngtree-color-icon---football-goal-post-game-icon-penalty-vector-png-image_37947066.png";
+
+let ballW = 20;
+let ballH = 20;
+
+let ballX = CW / 2 - ballW / 2;
+let ballY = CH / 2 - ballH / 2;
+
+let ballSpeedX = 5;
+let ballSpeedY = 3;
+
+let bounces = 0;
+let score = 0;
+let falls = 0;
+
+function drawRect(x, y, w, h) {
+  ctx.fillRect(x, y, w, h);
+}
+// invoke the function
+function drawBall() {
+  ctx.drawImage(ballImage, ballX, ballY, ballW, ballH);
+}
+
+drawBall();
+
+let paddleW = 100;
+let paddleH = 20;
+let paddleX = CW / 2 - paddleW / 2;
+let paddleY = CH - paddleH - 20;
+function drawPaddle() {
+  drawRect(paddleX, paddleY, paddleW, paddleH);
+}
+drawPaddle();
+let netW = 120;
+let netH = 30;
+let netX = CW / 2 - netW / 2;
+let netY = 0;
+function drawNet() {
+  drawRect(netX, netY, netW, netH);
+}
+drawNet();
+function drawHUD() {
+  ctx.font = "12px Arial";
+  ctx.fillText("Bounces: " + bounces, 50, 50);
+  ctx.fillText("Falls: " + falls, 125, 50);
+
+  //(string, x, y)
+}
+drawHUD();
+
+function paddleCollision() {
+  if (
+    // first
+    ballX < paddleX + paddleW &&
+    // second
+    ballX + ballW > paddleX &&
+    // third
+    ballY < paddleY + paddleH &&
+    // fourth
+    ballY + ballH > paddleY
+  ) {
+    return true;
+  }
+}
+function netCollision() {
+  if (
+    // first
+    ballX < netX + netW &&
+    // second
+    ballX + ballW > netX &&
+    // third
+    ballY < netY + netH &&
+    // fourth
+    ballY + ballH > netY
+  ) {
+    return true;
+  }
+}
+let moveRight = false;
+let moveLeft = false;
+document.addEventListener("keydown", function (event) {
+  if (event.key === "ArrowRight") {
+    moveRight = true;
+    // paddleX += 10;
+  }
+  if (event.key === "ArrowLeft") {
+    moveLeft = true;
+    // paddleX -= 10;
+  }
+});
+document.addEventListener("keyup", function (event) {
+  if (event.key === "ArrowRight") {
+    moveRight = false;
+    // paddleX += 10;
+  }
+  if (event.key === "ArrowLeft") {
+    moveLeft = false;
+    // paddleX -= 10;
+  }
+});
+
+function playGame() {
+  ctx.clearRect(0, 0, CW, CH);
+  ballX += ballSpeedX;
+  ballY += ballSpeedY;
+
+  if (ballX + ballW > CW || ballX < 0) {
+    ballSpeedX *= -1;
+  }
+  if (ballY < 0) {
+    ballSpeedY *= -1;
+  }
+  if (ballY + ballH > CH) {
+    falls++;
+    console.log("fail. Number of falls: " + falls);
+
+    ballY = CH / 2;
+    ballX = CW / 2;
+  }
+
+  if (paddleCollision()) {
+    console.log("collision!");
+    bounces++;
+    console.log(bounces);
+    ballSpeedX *= -1;
+    ballSpeedY *= -1;
+  }
+
+  if (moveRight && paddleX + paddleW < CW) {
+    paddleX += 10;
+  }
+  if (moveLeft && paddleX > 0) {
+    paddleX -= 10;
+  }
+  if (netCollision()) {
+    ballSpeedX *= -1;
+    ballSpeedY *= -1;
+  }
+
+  drawBall();
+  drawPaddle();
+  drawNet();
+  drawHUD();
+
+  // count++; // increment by 1
+  // console.log(count);
+
+  // call the recursive loop
+  // recursive means continue forever
+  requestAnimationFrame(playGame);
+}
+
+// playGame();
+
+</script>
+</html>
